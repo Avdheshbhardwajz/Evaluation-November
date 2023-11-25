@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Masai Doctor Records</title>
+    <style>
+      /* CSS styling */
+      body {
+        font-family: Arial, sans-serif;
+        margin: 20px;
+      }
+
+      form {
+        margin-bottom: 20px;
+      }
+
+      input,
+      select,
+      button {
+        margin-bottom: 10px;
+        padding: 5px;
+      }
+
+      table {
+        border-collapse: collapse;
+        width: 100%;
+      }
+
+      table,
+      th,
+      td {
+        border: 1px solid #ccc;
+      }
+
+      th,
+      td {
+        padding: 8px;
+        text-align: left;
+      }
+
+      button {
+        cursor: pointer;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Use this form for data input  -->
+    <form>
+      <input placeholder="Name" type="text" id="name" />
+      <input placeholder="Doctor ID" type="text" id="doctor_id" />
+      <select id="specialization">
+        <option value="">Select Specialization</option>
+        <option value="Dermatologist">Dermatologist</option>
+        <option value="Dentist">Dentist</option>
+        <option value="Gynecologist">Gynecologist</option>
+      </select>
+      <input placeholder="Experience" type="number" id="experience" />
+      <input placeholder="Email" type="email" id="email" />
+      <input placeholder="Mobile No." type="number" id="mobile" />
+      <input type="submit" value="Submit" />
+    </form>
+
+    <!-- Use this Select tag for filter part  -->
+    <select id="filter">
+      <option value="">Select Specialization</option>
+      <option value="Dermatologist">Dermatologist</option>
+      <option value="Dentist">Dentist</option>
+      <option value="Gynecologist">Gynecologist</option>
+    </select>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Doctor ID</th>
+          <th>Specialization</th>
+          <th>Experience in Years</th>
+          <th>Email</th>
+          <th>Mobile No</th>
+          <th>Role</th>
+          <th>Delete</th>
+        </tr>
+      </thead>
+      <tbody>
+        <!-- Append Rows here using JS & DOM  -->
+      </tbody>
+    </table>
+  </body>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      const form = document.querySelector("form");
+      const tableBody = document.querySelector("tbody");
+      const specializationFilter = document.getElementById("filter");
+
+      form.addEventListener("submit", function (event) {
+        event.preventDefault();
+        addDoctor();
+      });
+
+      function addDoctor() {
+        const name = document.getElementById("name").value;
+        const doctorID = document.getElementById("doctor_id").value;
+        const specialization = document.getElementById("specialization").value;
+        const experience = parseInt(
+          document.getElementById("experience").value
+        );
+        const email = document.getElementById("email").value;
+        const mobile = document.getElementById("mobile").value;
+
+        const role = getRole(experience);
+
+        const newRow = document.createElement("tr");
+        newRow.innerHTML = `
+      <td>${name}</td>
+      <td>${doctorID}</td>
+      <td>${specialization}</td>
+      <td>${experience}</td>
+      <td>${email}</td>
+      <td>${mobile}</td>
+      <td>${role}</td>
+      <td><button class="deleteBtn">Delete</button></td>
+    `;
+
+        tableBody.appendChild(newRow);
+        form.reset();
+        updateFilterOptions();
+        setDeleteListeners();
+      }
+
+      function getRole(experience) {
+        if (experience > 5) {
+          return "Senior";
+        } else if (experience >= 2 && experience <= 5) {
+          return "Junior";
+        } else {
+          return "Trainee";
+        }
+      }
+
+      function updateFilterOptions() {
+        const specializations = new Set();
+        Array.from(tableBody.querySelectorAll("td:nth-child(3)")).forEach(
+          (cell) => {
+            specializations.add(cell.textContent);
+          }
+        );
+
+        specializationFilter.innerHTML =
+          '<option value="">Select Specialization</option>';
+        specializations.forEach((spec) => {
+          specializationFilter.innerHTML += `<option value="${spec}">${spec}</option>`;
+        });
+      }
+
+      function setDeleteListeners() {
+        const deleteButtons = document.querySelectorAll(".deleteBtn");
+        deleteButtons.forEach((btn) => {
+          btn.addEventListener("click", function () {
+            const row = this.parentNode.parentNode;
+            row.parentNode.removeChild(row);
+            updateFilterOptions();
+          });
+        });
+      }
+
+      specializationFilter.addEventListener("change", function () {
+        const selectedSpec = this.value;
+        const rows = tableBody.getElementsByTagName("tr");
+        for (let row of rows) {
+          if (
+            selectedSpec === "" ||
+            row.getElementsByTagName("td")[2].textContent === selectedSpec
+          ) {
+            row.style.display = "";
+          } else {
+            row.style.display = "none";
+          }
+        }
+      });
+    });
+  </script>
+</html>
